@@ -192,18 +192,19 @@ class AstroWeatherService:
                 res.append(object_card)
         return res
 
-    def object_image(self, object_tuple, h=22):
+    def object_image(self, object_tuple, h=22, w=47):
         name, img_url, magnitude, size = object_tuple
         font = ImageFont.truetype("pixelated.ttf", 8)
         out = Image.new("RGBA", (60, h), (0, 0, 0, 255))
         d = ImageDraw.Draw(out)
         image_req = requests.get(img_url)
         img = Image.open(BytesIO(image_req.content))
-        img = img.resize((h, h), Image.Resampling.NEAREST)
+        img = img.resize((w, w), Image.Resampling.NEAREST)
+        img = img.crop((0, int((w-h)/2), w, int((w-h)/2)+h))
         out.paste(img, (0,0))
-        d.multiline_text((0, 14), name, font=font, fill=(200, 200, 200))
-        d.multiline_text((20, 0), 'M:'+magnitude, font=font, fill=(200, 200, 200))
-        d.multiline_text((20, 6), size, font=font, fill=(200, 200, 200))
+        d.multiline_text((0, 12), name, font=font, fill=(200, 200, 200))
+        d.multiline_text((0, 0), 'M:'+magnitude, font=font, fill=(200, 200, 200))
+        d.multiline_text((0, 6), size, font=font, fill=(200, 200, 200))
         return out
 
     def retrieve_object(self):
@@ -227,7 +228,7 @@ class AstroWeatherService:
         # top = np.zeros((24, 64, 0), dtype=np.uint8  )
         result_img = Image.new("RGBA", (64, 32), (0, 0, 0, 255))
         result_img.paste(moon_img, (3,1), moon_img)
-        result_img.paste(temp_img, (3,11), temp_img)
+        result_img.paste(temp_img, (3,14), temp_img)
         result_img.paste(forecast_img, (0,22))
         result_img.paste(obj_img, (17,0))
 
@@ -242,7 +243,7 @@ class AstroWeatherService:
         img = result_img
         img = img.resize((img.size[0]*zoom, img.size[1]*zoom), Image.NEAREST)
         b = io.BytesIO()
-        img.save(b, 'png')
+        img.save(b, 'bmp')
         b.seek(0)
         # fp = io.TextIOWrapper(b)
         return b
