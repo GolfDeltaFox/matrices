@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import numpy as np
-from PIL import Image, ImageFont,ImageDraw
+from PIL import Image, ImageFont,ImageDraw, ImageFilter
 import requests
 import io
 from io import BytesIO
@@ -202,9 +202,33 @@ class AstroWeatherService:
         img = img.resize((w, w), Image.Resampling.NEAREST)
         img = img.crop((0, int((w-h)/2), w, int((w-h)/2)+h))
         out.paste(img, (0,0))
-        d.multiline_text((0, 12), name, font=font, fill=(200, 200, 200))
-        d.multiline_text((0, 0), 'M:'+magnitude, font=font, fill=(200, 200, 200))
-        d.multiline_text((0, 6), size, font=font, fill=(200, 200, 200))
+        text_args = {
+            'fill':(200, 200, 200),
+            # 'stroke_width':1,
+            # 'stroke_fill':'#000000f0',
+            'font':font,
+            'spacing':-2
+        }
+        text = name+'\n'+'M:'+magnitude+'\n'+size
+        # d.multiline_text((0, 0), text, **text_args)
+
+
+        blurred = Image.new('RGBA', out.size)
+        draw = ImageDraw.Draw(blurred)
+        draw.multiline_text((0,0), text, fill=(0,0,0),stroke_width=1,stroke_fill=(0,0,0), font=font, spacing=-2)
+        blurred = blurred.filter(ImageFilter.GaussianBlur(1))
+        # Paste soft text onto background
+        out.paste(blurred,(0,0), blurred)
+        # Draw on sharp text
+        # draw = ImageDraw.Draw(out)
+        d.multiline_text((0,0), text, fill=(200, 200, 200, 255), font=font, spacing=0)
+        # bg.save('result.png')
+
+
+
+        # d.multiline_text((0, 12), name, **text_args)
+        
+        # d.multiline_text((0, 6), size, **text_args)
         return out
 
     def retrieve_object(self):
@@ -227,7 +251,7 @@ class AstroWeatherService:
         obj_img = self.object_image(object_tuple)
         # top = np.zeros((24, 64, 0), dtype=np.uint8  )
         result_img = Image.new("RGBA", (64, 32), (0, 0, 0, 255))
-        result_img.paste(moon_img, (3,1), moon_img)
+        result_img.paste(moon_img, (3,2), moon_img)
         result_img.paste(temp_img, (3,14), temp_img)
         result_img.paste(forecast_img, (0,22))
         result_img.paste(obj_img, (17,0))
