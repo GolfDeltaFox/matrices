@@ -46,13 +46,22 @@ def display():
     displayio.release_displays() # Release current display, we'll create our own
 
 
+    # matrix = rgbmatrix.RGBMatrix(
+    #     width=width_value, height=height_value, bit_depth=bit_depth_value,
+    #     rgb_pins=[board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9],
+    #     addr_pins=[board.GP10, board.GP16, board.GP18, board.GP20],
+    #     clock_pin=board.GP11, latch_pin=board.GP12, output_enable_pin=board.GP13,
+    #     tile=tile_down, serpentine=serpentine_value,
+    #     doublebuffer=False)
+
+    #Pinout for Interstate 75W
     matrix = rgbmatrix.RGBMatrix(
-        width=width_value, height=height_value, bit_depth=bit_depth_value,
-        rgb_pins=[board.GP2, board.GP3, board.GP4, board.GP5, board.GP8, board.GP9],
-        addr_pins=[board.GP10, board.GP16, board.GP18, board.GP20],
+        width=64, height=32, bit_depth=6,
+        rgb_pins=[board.GP0, board.GP1, board.GP2, board.GP3, board.GP4, board.GP5],
+        addr_pins=[board.GP6, board.GP7, board.GP8, board.GP9],
         clock_pin=board.GP11, latch_pin=board.GP12, output_enable_pin=board.GP13,
-        tile=tile_down, serpentine=serpentine_value,
-        doublebuffer=False)
+        tile=tile_down, serpentine=serpentine_value, doublebuffer=False)
+    
 
     DISPLAY = framebufferio.FramebufferDisplay(matrix, auto_refresh=False,
                                                rotation=180)
