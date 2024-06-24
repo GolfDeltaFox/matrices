@@ -48,7 +48,7 @@ def display_image():
     display = get_display()
     print('updating2')
     requests = adafruit_requests.Session(pool, ssl.create_default_context())
-    response = requests.get("http://hera.local:5002/matrices/astro/37.87/-122/1")
+    response = requests.get("http://hera.local:5002/matrices/astro/37.87/-122.29/1")
     img_data = io.BytesIO(response.content)
     img, pal = adafruit_imageload.load(img_data)
 
