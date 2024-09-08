@@ -19,7 +19,7 @@ class AstroWeatherService:
             {'name':'Dew Point (°C)', 'type': 'std', 'cmap': self.temp_cmap},
             {'name':'Temperature (°C)', 'type': 'std', 'cmap': self.temp_cmap}
         ]
-        
+
     @classmethod
     def get_li_hour(cls, li):
         return int(li.text.split(' ')[1])
@@ -176,14 +176,13 @@ class AstroWeatherService:
         source[y:y+s_y, x:s_x] = orig
         return source
 
-
     def parse_card(self, object_card):
-        name = object_card.find_all('div')[0].a.b.text.split(' / ')[0]
-        img_url = object_card.find('img', class_='img-circle')['src']
+        name = object_card.find_all('h2', class_='object_card_name')[0].a.text
+        img_url = object_card.find('img', class_='img-rounded')['src']
         magnitude = object_card.find('span', title='Magnitude').text.split(' ')[-1]
-        size = object_card.find('span', title='Apparent size').text.split(' ')[-1].replace('°','')
+        size = object_card.find('span', title='Object size').text.split(' ')[-1].replace('°','')
         return (name, img_url, magnitude, size)
-        
+
     def filter_objects(self, object_cards, out=['Open Cluster']):
         res = []
         for object_card in object_cards:
@@ -222,22 +221,16 @@ class AstroWeatherService:
         # Draw on sharp text
         # draw = ImageDraw.Draw(out)
         d.multiline_text((0,0), text, fill=(200, 200, 200, 255), font=font, spacing=0)
-        # bg.save('result.png')
-
-
-
-        # d.multiline_text((0, 12), name, **text_args)
-        
-        # d.multiline_text((0, 6), size, **text_args)
         return out
 
     def retrieve_object(self):
-        url = f"https://sky-tonight.com/?sort=alt"
+        url = f"https://sky-tonight.com/"
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-        print(soup.body)
-        object_cards = soup.body.find_all("div", class_="object_card")
-        object_cards = self.filter_objects(object_cards)
+        object_container = soup.body.find_all("div", class_="object_cards_container", id="nebulae-list")[0]
+        # print(soup.body)
+        object_cards = soup.body.find_all("div", class_="object_card_name")
+        object_cards = object_container.find_all("div", class_="object_card")
         object_tuple = self.parse_card(object_cards[0])
         return object_tuple
 
